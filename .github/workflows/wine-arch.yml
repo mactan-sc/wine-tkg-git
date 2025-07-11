@@ -24,11 +24,10 @@ jobs:
           [ -d "./patches" ] && rm -r --interactive=never ./patches
           [ -f "./wine-tkg-userpatches/"*] && rm "./wine-tkg-userpatches/"*".mypatch"
           git clone "https://github.com/starcitizen-lug/patches"
-          for file in "./patches/wine"/*".patch"; do
-              mv "$file" "${file%.patch}.mypatch"
+          patches=("silence-sc-unsupported-os")
+          for file in "${patches[@]}"; do
+              cp "./patches/wine/$file.patch" "./wine-tkg-userpatches/${file%.patch}.mypatch"
           done
-          cp "./patches/wine"/* "./wine-tkg-userpatches"
-          echo "contents are $(ls wine-tkg-userpatches)" >> $GITHUB_OUTPUT
 
           sed -i 's/wayland_driver="false"/wayland_driver="true"/' customization.cfg
 
@@ -37,7 +36,7 @@ jobs:
           sed -i 's/use_esync="true"/use_esync="false"/' customization.cfg
           sed -i 's/use_fsync="true"/use_fsync="false"/' customization.cfg
 
-          sed -i 's/staging_userargs="-W ntdll-NtAlertThreadByThreadId"/_staging_userargs="-W ntdll-NtAlertThreadByThreadId -W ntdll-ForceBottomUpAlloc"/' ./wine-tkg-profiles/advanced-customization.cfg
+          sed -i 's/staging_userargs="-W ntdll-NtAlertThreadByThreadId"/staging_userargs="-W ntdll-NtAlertThreadByThreadId -W ntdll-ForceBottomUpAlloc"/' ./wine-tkg-profiles/advanced-customization.cfg
           
           su user -c "yes|PKGDEST=/tmp/wine-tkg makepkg --noconfirm -s"
 
